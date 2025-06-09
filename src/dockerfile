@@ -1,0 +1,26 @@
+# 1. Imagem oficial e leve
+FROM node:20.10.0-alpine3.18
+
+# 2. Define diretório de trabalho
+WORKDIR /app
+
+# 3. Copia só os arquivos de dependências
+COPY package*.json ./
+
+# 4. Instala dependências com segurança
+RUN npm install --omit=dev --prefer-offline --no-audit --no-fund
+
+# 5. Copia o restante do app
+COPY . .
+
+# 6. Remove arquivos desnecessários (opcional)
+RUN rm -rf tests/ *.md
+
+# 7. Define variável de ambiente padrão (ex: produção)
+ENV NODE_ENV=production
+
+# 8. Expõe a porta da aplicação
+EXPOSE 8080
+
+# 9. Define o processo principal
+CMD ["node", "server.js"]
