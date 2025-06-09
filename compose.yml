@@ -1,9 +1,10 @@
+
 services:
   web:
     build:
       context: ./src
       dockerfile: Dockerfile
-    image: joaosilva/blog-web:1.2.0
+    image: marcoantoniolobo82/kube-news:v3
     ports:
       - "8080:8080"
     env_file:
@@ -17,14 +18,14 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: blogdb
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
