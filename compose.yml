@@ -4,7 +4,7 @@ services:
     build:
       context: ./src
       dockerfile: Dockerfile
-    image: marcoantoniolobo82/kube-news:v3
+    image: marcoantoniolobo82/kube-news:v1
     ports:
       - "8080:8080"
     env_file:
