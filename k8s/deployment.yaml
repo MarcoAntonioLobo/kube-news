@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   name: postgresql
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: postgresql
@@ -13,33 +12,32 @@ spec:
         app: postgresql
     spec:
       containers:
-        - name: postgresql
-          image: postgres:14.18
-          ports:
-            - containerPort: 5432
-          envFrom:
-            - configMapRef:
-                name: postgres-config
-            - secretRef:
-                name: postgres-secret
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgresql
-spec:
-  selector:
-    app: postgresql
-  ports:
-    - port: 5432
-      targetPort: 5432
+      - name: postgresql
+        image: postgres:15
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: POSTGRES_PASSWORD
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kubenews
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: kubenews
@@ -49,25 +47,28 @@ spec:
         app: kubenews
     spec:
       containers:
-        - name: kubenews
-          image: marcoantoniolobo82/kube-news:v1
-          ports:
-            - containerPort: 8080
-          envFrom:
-            - configMapRef:
-                name: kube-news-config
-            - secretRef:
-                name: kube-news-secret
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: kubenews
-spec:
-  selector:
-    app: kubenews
-  ports:
-    - port: 80
-      targetPort: 8080
-      nodePort: 30000
-  type: NodePort
+      - name: kubenews
+        image: marcoantoniolobo82/kube-news:v1
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: DB_HOST
+        - name: DB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: DB_DATABASE
+        - name: DB_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: DB_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_PASSWORD
